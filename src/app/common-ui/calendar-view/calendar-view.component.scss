@@ -1,0 +1,13 @@
+.calendar-content {
+  display: grid;
+  grid-template-columns: auto repeat(5, 1fr);
+}
+
+.day {
+	background: white;
+}
+
+.slot-card {
+	height: 200px;
+	border: 1px solid black;
+}

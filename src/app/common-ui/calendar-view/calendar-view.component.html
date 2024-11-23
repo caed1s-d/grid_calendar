@@ -1,0 +1,19 @@
+<div class="calendar">
+  <div class="calendar-content">
+    <div class="time-slots">
+      <div class="time-slot" *ngFor="let slot of timeSlots">
+        {{ slot.start }}
+      </div>
+    </div>
+    <div class="day" *ngFor="let day of weekDays">
+      <div class="day-content">
+        <ng-container *ngFor="let slot of timeSlots">
+          <div
+            class="slot-card empty"
+            [ngClass]="{ 'event': isEventAtSlot(day, slot.start) }"
+          ></div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
