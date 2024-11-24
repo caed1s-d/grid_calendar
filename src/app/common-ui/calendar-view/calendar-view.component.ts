@@ -30,7 +30,7 @@ export class CalendarViewComponent {
       {
         title: 'Приёмка квартиры',
         startDay: 'monday',
-        startTime: '9:00',
+        startTime: '9:30',
         duration: 120,
       },
       {

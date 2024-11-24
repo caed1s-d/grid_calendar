@@ -6,15 +6,16 @@
       </div>
     </div>
     <div class="day" *ngFor="let day of weekDays">
+      <div class="day-header">{{ day }}</div>
       <div class="day-content">
         <ng-container *ngFor="let event of events">
           <ng-container *ngIf="event.startDay === getDayKey(day)">
             <div
               class="slot-card"
-              [ngClass]="{ 'event': !event.isEmpty, 'empty': event.isEmpty }"
+              [ngClass]="{ event: !event.isEmpty, empty: event.isEmpty }"
               [style.gridRowEnd]="getGridRowEnd(day, event.startTime)"
             >
-              {{ event.title || 'Пустой слот' }}
+              {{ event.title || "Пустой слот" }}
             </div>
           </ng-container>
         </ng-container>
