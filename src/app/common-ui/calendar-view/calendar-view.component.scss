@@ -1,13 +1,31 @@
 .calendar-content {
-  display: grid;
-  grid-template-columns: auto repeat(5, 1fr);
+  display: flex;
+  justify-content: center;
 }
 
-.day {
-	background: white;
+.day-content {
+  display: grid;
+  grid-auto-rows: 200px;
+  grid-template-columns: 200px;
+  justify-content: center;
 }
 
 .slot-card {
-	height: 200px;
-	border: 1px solid black;
+  padding: 12px;
+  border: 1px solid black;
+}
+
+.day {
+  background-color: white;
+}
+
+.slot-card.event {
+  background-color: #add8e6;
+}
+
+.slot-card.event.long-event {
+}
+
+.empty {
+  background-color: transparent;
 }

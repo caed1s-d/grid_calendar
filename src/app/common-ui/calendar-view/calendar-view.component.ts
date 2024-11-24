@@ -1,10 +1,13 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
+import { TIMESLOTS } from '../../values';
 
 interface Event {
   title: string;
-  start: Date;
-  duration: number; // Продолжительность в минутах
+  startDay: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
+  startTime: string;
+  duration: number;
+  isEmpty?: boolean;
 }
 
 @Component({
@@ -14,86 +17,121 @@ interface Event {
   styleUrls: ['./calendar-view.component.scss'],
 })
 export class CalendarViewComponent {
-  weekDays: string[] = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт'];
-  timeSlots: { start: string }[] = [];
+  weekDays: any[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  timeSlots: string[] = TIMESLOTS;
   events: Event[] = [];
 
   constructor() {
-    this.initializeTimeSlots();
     this.initializeEvents();
   }
 
-  initializeTimeSlots() {
-    const startHour = 9;
-    const endHour = 19;
-    const startTime = new Date();
-    startTime.setHours(startHour, 0, 0, 0);
-
-    for (let i = 0; i < (endHour - startHour) * 2; i++) {
-      const start = new Date(startTime.getTime() + i * 30 * 60000);
-      this.timeSlots.push({
-        start: start.toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      });
-    }
-  }
-
-  initializeEvents() {
+  private initializeEvents() {
     this.events = [
       {
         title: 'Приёмка квартиры',
-        start: new Date(2024, 11, 1, 10),
-        duration: 60,
+        startDay: 'monday',
+        startTime: '9:00',
+        duration: 120,
       },
       {
         title: 'Встреча с застройщиком',
-        start: new Date(2024, 11, 1, 11),
+        startDay: 'tuesday',
+        startTime: '9:00',
         duration: 30,
       },
     ];
+
+    this.fillEmptySlots();
   }
 
-  isEventAtSlot(day: string, timeSlotStart: string): boolean {
-    const date = this.getDateFromDayAndTime(day, timeSlotStart);
+  private fillEmptySlots() {
+    const filledEvents: Event[] = [];
+
+    for (const day of this.weekDays) {
+      let currentSlotIndex = 0;
+
+      while (currentSlotIndex < this.timeSlots.length) {
+        const currentSlot = this.timeSlots[currentSlotIndex];
+        const event = this.events.find(
+          (event) =>
+            event.startDay === this.getDayKey(day) &&
+            event.startTime === currentSlot
+        );
+
+        if (event) {
+          filledEvents.push(event);
+
+          const durationInSlots = Math.ceil(event.duration / 30);
+          currentSlotIndex += durationInSlots;
+        } else {
+          filledEvents.push({
+            title: '',
+            startDay: day,
+            startTime: currentSlot,
+            duration: 0,
+            isEmpty: true,
+          });
+          currentSlotIndex++;
+        }
+      }
+    }
+
+    this.events = filledEvents;
+
+    console.log(this.events);
+  }
+
+  hasEvent(day: string, slot: string): boolean {
     return this.events.some(
       (event) =>
-        event.start.getTime() === date.getTime() &&
-        event.duration > this.getSlotIndex(timeSlotStart) * 30
+        event.startDay === this.getDayKey(day) &&
+        event.startTime === slot &&
+        !event.isEmpty
     );
   }
 
-  getEventTitle(day: string, timeSlotStart: string): string {
-    const date = this.getDateFromDayAndTime(day, timeSlotStart);
+  getEventTitle(day: string, slot: string): string {
     const event = this.events.find(
-      (event) => event.start.getTime() === date.getTime()
+      (event) =>
+        event.startDay === this.getDayKey(day) && event.startTime === slot
     );
     return event ? event.title : '';
   }
 
-  getBorderStyle(day: string, timeSlotStart: string): string {
-    return this.isEventAtSlot(day, timeSlotStart) ? '1px solid black' : 'none';
-  }
-
-  getDateFromDayAndTime(day: string, timeSlotStart: string): Date {
-    const date = new Date();
-    const dayIndex = this.weekDays.indexOf(day);
-
-    date.setDate(
-      date.getDate() +
-        ((dayIndex - date.getDay() + (date.getDay() <= dayIndex ? 7 : 0)) % 7)
+  getEventDuration(day: string, slot: string): number {
+    const event = this.events.find(
+      (event) =>
+        event.startDay === this.getDayKey(day) && event.startTime === slot
     );
 
-    const [hourStr] = timeSlotStart.split(':');
-    const hour = parseInt(hourStr);
-
-    date.setHours(hour);
-
-    return date;
+    return event ? event.duration : 0;
   }
 
-  getSlotIndex(timeSlotStart: string): number {
-    return this.timeSlots.findIndex((slot) => slot.start === timeSlotStart);
+  getGridRowEnd(day: string, slot: string): string {
+    const durationInSlots = Math.ceil(this.getEventDuration(day, slot) / 30);
+    return `span ${durationInSlots}`;
+  }
+
+  getEventColor(day: string, slot: string): string {
+    const title = this.getEventTitle(day, slot);
+    switch (title) {
+      case 'Приёмка квартиры':
+        return '#FFCCCB';
+      case 'Встреча с застройщиком':
+        return '#ADD8E6';
+      default:
+        return '#FFFFFF';
+    }
+  }
+
+  getDayKey(dayAbbreviation: string): string {
+    const daysMap: any = {
+      monday: 'monday',
+      tuesday: 'tuesday',
+      wednesday: 'wednesday',
+      thursday: 'thursday',
+      friday: 'friday',
+    };
+    return daysMap[dayAbbreviation];
   }
 }
