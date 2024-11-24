@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { TIMESLOTS } from '../../values';
 
 interface Event {
+  id: number;
   title: string;
   startDay: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
   startTime: string;
@@ -28,12 +29,14 @@ export class CalendarViewComponent {
   private initializeEvents() {
     this.events = [
       {
+        id: 1,
         title: 'Приёмка квартиры',
         startDay: 'monday',
         startTime: '9:30',
-        duration: 120,
+        duration: 30,
       },
       {
+        id: 2,
         title: 'Встреча с застройщиком',
         startDay: 'tuesday',
         startTime: '9:00',
@@ -65,6 +68,7 @@ export class CalendarViewComponent {
           currentSlotIndex += durationInSlots;
         } else {
           filledEvents.push({
+            id: -1,
             title: '',
             startDay: day,
             startTime: currentSlot,
